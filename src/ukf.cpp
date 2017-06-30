@@ -62,7 +62,7 @@ UKF::UKF() {
     */
     R_laser_ = MatrixXd(2, 2);
     R_radar_ = MatrixXd(3, 3);
-    H_laser_ = MatrixXd(2, 4);
+    H_laser_ = MatrixXd(2, 5);
 
     //measurement covariance matrix - laser
     R_laser_ << 0.0225, 0,
@@ -80,8 +80,8 @@ UKF::UKF() {
             0, 0, 0, 0, 1;
 
     //measurement matrix
-    H_laser_ << 1, 0, 0, 0,
-            0, 1, 0, 0;
+    H_laser_ << 1, 0, 0, 0, 0,
+            0, 1, 0, 0, 0;
 
     Xsig_aug_ = MatrixXd(n_aug_, 2 * n_aug_ + 1);
 
@@ -185,7 +185,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
         //UpdateRadar(meas_package);
     } else {
         // Laser updates
-        //UpdateLidar(meas_package);
+        UpdateLidar(meas_package);
     }
 
     // print the output
