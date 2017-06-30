@@ -28,6 +28,15 @@ public:
     ///* state covariance matrix
     MatrixXd P_;
 
+    ///* Augmented mean state
+    VectorXd x_aug_;
+
+    ///* augmented covariance matrix
+    MatrixXd P_aug_;
+
+    ///* augmented sigma points matrix
+    MatrixXd Xsig_aug_;
+
     ///* predicted sigma points matrix
     MatrixXd Xsig_pred_;
 
