@@ -191,7 +191,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
 
     if (meas_package.sensor_type_ == MeasurementPackage::RADAR ) {
         // Radar updates
-        //UpdateRadar(meas_package);
+        UpdateRadar(meas_package);
     } else {
         // Laser updates
         UpdateLidar(meas_package);
@@ -345,9 +345,27 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
         double v2 = sin(yaw)*v;
 
         // measurement model
-        Zsig_(0,i) = sqrt(p_x*p_x + p_y*p_y);                        //r
-        Zsig_(1,i) = atan2(p_y,p_x);                                 //phi
-        Zsig_(2,i) = (p_x*v1 + p_y*v2 ) / sqrt(p_x*p_x + p_y*p_y);   //r_dot
+        double r = sqrt(p_x*p_x + p_y*p_y);                        //r
+        double phi = atan2(p_y,p_x);                                 //phi
+        double r_dot  = (p_x*v1 + p_y*v2 ) / sqrt(p_x*p_x + p_y*p_y);   //r_dot
+
+        if (!isfinite(r)){
+            printf ("r  : %f\n",r);
+            r = 0;
+        }
+
+        if (!isfinite(phi)){
+            printf ("phi  : %f\n",phi);
+            phi = 0;
+        }
+
+        if (!isfinite(r_dot)){
+            printf ("r_dot  : %f\n",r_dot);
+            r_dot = 0;
+        }
+        Zsig_(0,i) = r;
+        Zsig_(1,i) = phi;
+        Zsig_(2,i) = r_dot;
     }
 
     //mean predicted measurement
@@ -370,6 +388,10 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
 
         S = S + weights_(i) * z_diff * z_diff.transpose();
     }
+
+    //add measurement noise covariance matrix
+    S = S + R_radar_;
+
     //create matrix for cross correlation Tc
     MatrixXd Tc = MatrixXd(n_x_, n_z_radar_);
 
@@ -391,10 +413,10 @@ void UKF::UpdateRadar(MeasurementPackage meas_package) {
         while (x_diff(3)<-M_PI) x_diff(3)+=2.*M_PI;
 
         Tc = Tc + weights_(i) * x_diff * z_diff.transpose();
-        std::cout << "x_diff * z_diff.transpose(): " << std::endl << x_diff * z_diff.transpose() << std::endl;
+        //std::cout << "x_diff * z_diff.transpose(): " << std::endl << x_diff * z_diff.transpose() << std::endl;
     }
-    std::cout << "Tc : " << std::endl <<Tc << std::endl;
-    std::cout << "weights(1) : " << std::endl << weights_(1) << std::endl;
+    //std::cout << "Tc : " << std::endl <<Tc << std::endl;
+    //std::cout << "weights(1) : " << std::endl << weights_(1) << std::endl;
     //Kalman gain K;
     MatrixXd K = Tc * S.inverse();
 
