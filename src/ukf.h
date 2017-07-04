@@ -82,8 +82,17 @@ public:
     ///* Augmented state dimension
     int n_aug_;
 
+    ///* Measurement dimension for Radar
+    int n_z_radar_;
+
+    ///* Measurement dimension for Laser
+    int n_z_laser_;
+
     ///* Sigma point spreading parameter
     double lambda_;
+
+    ///* sigma points matrix
+    MatrixXd Zsig_;
 
     ///* previous timestamp
     long long previous_timestamp_;
