@@ -4,6 +4,9 @@
 #include <math.h>
 #include "ukf.h"
 #include "tools.h"
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -38,6 +41,7 @@ int main()
     vector<VectorXd> estimations;
     vector<VectorXd> ground_truth;
 
+
     h.onMessage([&ukf,&tools,&estimations,&ground_truth](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
         // "42" at the start of the message means there's a websocket message event.
         // The 4 signifies a websocket message
@@ -50,7 +54,7 @@ int main()
             if (s != "") {
 
                 auto j = json::parse(s);
-
+                ofstream out_file_("NIS_output.txt", std::ios_base::app | std::ios_base::out);
                 std::string event = j[0].get<std::string>();
 
                 if (event == "telemetry") {
@@ -108,6 +112,7 @@ int main()
                     //Call ProcessMeasurment(meas_package) for Kalman filter
                     ukf.ProcessMeasurement(meas_package);
 
+
                     //Push the current estimated x,y positon from the Kalman filter's state vector
 
                     VectorXd estimate(4);
@@ -128,6 +133,11 @@ int main()
                     estimations.push_back(estimate);
 
                     VectorXd RMSE = tools.CalculateRMSE(estimations, ground_truth);
+
+
+                    // output nis
+                    out_file_ << ukf.NIS_laser_ << ",\t";
+                    out_file_ << ukf.NIS_radar_ << endl;
 
                     json msgJson;
                     msgJson["estimate_x"] = p_x;

@@ -97,6 +97,12 @@ public:
     ///* previous timestamp
     long long previous_timestamp_;
 
+    ///* the current NIS for radar
+    double NIS_radar_;
+
+    ///* the current NIS for laser
+    double NIS_laser_;
+
     /**
      * Constructor
      */
